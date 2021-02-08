@@ -1,0 +1,18 @@
+{% extends "shares/layout.html" %}
+{% load static %}
+
+
+
+{% block body %}
+<script>
+    {% for stock in stocks %}
+        var stocksymbol = "{{ stock.stock_symbol }}";
+
+
+    {% endfor %}
+</script>
+<div class="true-body">
+
+</div>
+{% endblock %}
+
