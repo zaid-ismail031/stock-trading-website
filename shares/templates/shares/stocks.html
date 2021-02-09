@@ -5,14 +5,75 @@
 
 {% block body %}
 <script>
-    {% for stock in stocks %}
-        var stocksymbol = "{{ stock.stock_symbol }}";
+
+	document.addEventListener('DOMContentLoaded', function() {
+		{% for stock in stocks %}
+        	var stock_symbol = "{{ stock.stock_symbol }}"
+        	initStockPrice(stock_symbol);
+        	//getStockPrice(stock_symbol);    	        	
+    	{% endfor %}
+	})
+    
+	function initStockPrice(symbol) {
+    	fetch(`https://cloud.iexapis.com/stable/stock/${symbol}/quote?token=pk_c1b5f3ef041241d595d3b69659efcb5b`)
+
+    	.then((response)=> {
+    		return response.json();
+    	})
+
+    	.then((data)=> {
+    		console.log(data.latestPrice);
+    		document.getElementById(symbol).innerHTML = `$${data.latestPrice}`;
+    	})
+
+    	.catch((err)=> {
+    		console.log(err);
+    	})
+    }
 
 
-    {% endfor %}
+    function getStockPrice(symbol) {
+    	setInterval(function() {
+    		fetch(`https://sandbox.iexapis.com/stable/stock/${symbol}/batch?types=quote,news,chart&range=1m&last=10&token=Tsk_0a2e18ad710242d5acfb84a17190da50`)
+
+    		.then((response)=> {
+    			return response.json();
+    		})
+
+    		.then((data)=> {
+    			console.log(data.quote.latestPrice);
+    			document.getElementById(symbol).innerHTML = `$${data.quote.latestPrice}`;
+    		})
+
+    		.catch((err)=> {
+    			console.log(err);
+    		})
+    	}, 10000);
+
+
+
+    }
 </script>
 <div class="true-body">
+    <table id="stock-table">
+        <thead>
+            <tr>
+                <th>Stock Symbol</th>
+                <th>Stock Name</th>
+                <th>Current Price</th>
+            </tr>
+        </thead>
 
+        <tbody>
+            {% for stock in stocks %}
+            <tr>
+                <td><a href="{% url 'stockinfo' stock.stock_symbol %}">{{ stock.stock_symbol }}</a></td>
+                <td>{{ stock.stock_name }}</td>
+                <td id="{{ stock.stock_symbol }}"></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
 {% endblock %}
 

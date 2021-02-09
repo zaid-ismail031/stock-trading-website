@@ -102,18 +102,12 @@ def news(request):
 
 # Stockinfo page
 @login_required
-def stockinfo(request):
-    return render(request, "shares/stockinfo.html")
+def stockinfo(request, symbol):
+    stock = Stocks.objects.get(stock_symbol=symbol.upper())
+    return render(request, "shares/stockinfo.html", {
+        "stock": stock
+    })
 
 
-# ______________________________________ API's ___________________________________________________
-# news API
-@login_required
-def getnews(request):
-    return None
 
-
-# stockinfo API
-def getstockinfo(request):
-    return None
 

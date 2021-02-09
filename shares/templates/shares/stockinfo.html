@@ -1,7 +1,12 @@
 {% extends "shares/layout.html" %}
+{% load static %}
 
 {% block body %}
 <div class="true-body">
-    
+    <h4>{{ stock.stock_name }}</h4>
 </div>
+{% endblock %}
+
+{% block script %}
+    <script src="{% static 'shares/stockinfo.js' %}"></script>
 {% endblock %}

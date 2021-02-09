@@ -10,5 +10,6 @@ urlpatterns = [
     path("", views.index, name="index"),
 
     path("news", views.news, name="news"),
-    path("stocks", views.stocks, name="stocks")
+    path("stocks", views.stocks, name="stocks"),
+    path("stocks/<str:symbol>", views.stockinfo, name="stockinfo")
 ]

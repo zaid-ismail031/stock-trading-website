@@ -11,3 +11,8 @@ form {
     font-size: medium;
     padding-right: 10px;
 }
+
+#stock-table {
+    margin: 25px;
+    width: 90%;
+}
