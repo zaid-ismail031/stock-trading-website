@@ -4,9 +4,11 @@
 {% block body %}
 <div class="true-body">
     <h4>{{ stock.stock_name }}</h4>
+    <canvas id="myChart"></canvas>
 </div>
 {% endblock %}
 
 {% block script %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
     <script src="{% static 'shares/stockinfo.js' %}"></script>
 {% endblock %}
