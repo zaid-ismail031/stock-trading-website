@@ -4,7 +4,31 @@
 {% block body %}
 <div class="true-body">
     <h4>{{ stock.stock_name }}</h4>
-    <canvas id="myChart"></canvas>
+    <button class="btn" id="1m">
+        1 month
+    </button>
+    <button class="btn" id="3m">
+        3 months
+    </button>
+    <button class="btn" id="6m">
+        6 months
+    </button>
+    <button class="btn" id="ytd">
+        ytd
+    </button>
+    <button class="btn" id="1y">
+        1 year
+    </button>
+    <button class="btn" id="2y"> 
+        2 years
+    </button>
+    <button class="btn" id="5y">
+        5 years
+    </button>
+    <br>
+
+
+    <canvas id="myChart" width="1500" height="400"></canvas>
 </div>
 {% endblock %}
 

@@ -48,6 +48,7 @@ class Account(AbstractBaseUser):
     is_superuser = models.BooleanField(default=False)
     first_name = models.CharField(max_length=60)
     last_name = models.CharField(max_length=60)
+    money = models.FloatField(default=10000)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name']
@@ -79,6 +80,23 @@ class Stocks(models.Model):
 
     class Meta:
         verbose_name_plural = "Stocks"
+
+
+class Open(models.Model):
+    user = models.ForeignKey("Account", on_delete=models.CASCADE, related_name="open_positions")
+    stock = models.ManyToManyField(Stocks, blank=True, related_name="open")
+    shares = models.FloatField()
+    purchased_at = models.FloatField()
+    timestamp = models.DateTimeField(auto_now=True)
+
+
+class Closed(models.Model):
+    user = models.ForeignKey("Account", on_delete=models.CASCADE, related_name="closed_positions")
+    stock = models.ManyToManyField(Stocks, blank=True, related_name="closed")
+    shares = models.FloatField()
+    closed_at = models.FloatField()
+    timestamp = models.DateTimeField(auto_now=True)
+
 
 
 

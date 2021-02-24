@@ -19,6 +19,8 @@
             <a href="#!" class="brand-logo right" id="username">Account holder: {{ user.first_name }} {{ user.last_name }}</a>
             <li ><a href="{% url 'index' %}">Home</a></li>
             <li ><a href="{% url 'stocks' %}">Stocks</a></li>
+            <li ><a href="{% url 'news' %}">Open Positions</a></li>
+            <li ><a href="{% url 'news' %}">Closed Positions</a></li>
             <li ><a href="{% url 'news' %}">News</a></li>
             <li ><a href="{% url 'logout' %}">Logout</a></li>
           {% else %}
