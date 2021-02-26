@@ -1,6 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
     const stockSymbol = window.location.pathname.split('/')[2];
-    //getStock(stockSymbol, "1y");
 
     document.getElementById("1m").addEventListener('click', () => getStock(stockSymbol, "1m"));
     document.getElementById("3m").addEventListener('click', () => getStock(stockSymbol, "3m"));

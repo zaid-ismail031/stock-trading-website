@@ -1,3 +1,6 @@
+import json
+import urllib.request
+
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
@@ -5,8 +8,11 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
 
-from .models import Account, Stocks
+from django.core.exceptions import ObjectDoesNotExist
+
+from .models import Account, Stocks, Open, Closed
 
 
 # __________________________________ACCOUNT FUNCTIONALITY______________________________________________
@@ -74,6 +80,14 @@ def register(request):
                 "message": "Username already taken."
             })
         login(request, user)
+
+        # Create user's fields in Open and Closed models
+        #userOpen = Open.objects.create(user=request.user)
+        #userOpen.save()
+        #
+        #userClose = Closed.objects.create(user=request.user)
+        #userClose.save()
+
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "shares/register.html")
@@ -107,6 +121,73 @@ def stockinfo(request, symbol):
     return render(request, "shares/stockinfo.html", {
         "stock": stock
     })
+
+
+# Purchase shares API
+@login_required
+@csrf_exempt
+def open(request, symbol, numberShares):
+
+    if request.method != 'POST':
+        return JsonResponse({"error": "POST request required"})
+
+    try:
+        Stocks.objects.get(stock_symbol=symbol)
+    except ObjectDoesNotExist:
+        return JsonResponse({"error": "Invalid stock"})
+
+    with urllib.request.urlopen(f'https://sandbox.iexapis.com/stable/stock/{symbol}/batch?types=quote,news,chart&range=1m&last=10&token=Tsk_0a2e18ad710242d5acfb84a17190da50') as url:
+        purchaser = Account.objects.get(id=1)
+        data = json.loads(url.read().decode())
+        price = float(data['quote']['latestPrice'])
+        totalprice = price * float(numberShares)
+        userMoney = float(purchaser.money)
+
+        if totalprice < userMoney:
+            return JsonResponse({"error": "You do not have the funds to complete this trade."})
+
+        updatedUserMoney = userMoney - totalprice
+        purchaser.money = updatedUserMoney
+
+        try:
+            openPosition = Open.objects.get(id=request.user, stock_symbol=symbol)
+            updatePrice = float(openPosition.position) + totalprice
+            updateShares = float(openPosition.shares) + float(numberShares)
+            openPosition.position = updatePrice
+            openPosition.shares = updateShares
+
+            openPosition.save()
+        except ObjectDoesNotExist:
+            userOpen = Open(
+                user=request.user,
+                stock=symbol,
+                shares=numberShares,
+                purchased_at=price
+            )
+
+            userOpen.save()
+
+    return JsonResponse({"success": "Purchase successful",
+                         "paid": f"{totalprice}",
+                         "updatedAccount": f"{updatedUserMoney}"
+                         })
+
+
+def close(request, symbol, numberShares):
+
+    if request.method != 'POST':
+        return JsonResponse({"error": "POST request required"})
+
+    try:
+        Stocks.objects.get(stock_symbol=symbol)
+    except ObjectDoesNotExist:
+        return JsonResponse({"error": "Invalid stock"})
+
+    try:
+        openPosition = Open.objects.get(id=request.user, stock_symbol=symbol)
+    except ObjectDoesNotExist:
+        return JsonResponse({"error": "You do not own any shares of this stock"})
+
 
 
 
