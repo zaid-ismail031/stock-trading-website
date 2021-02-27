@@ -126,10 +126,14 @@ def stockinfo(request, symbol):
 # Purchase shares API
 @login_required
 @csrf_exempt
-def open(request, symbol, numberShares):
+def open(request):
 
     if request.method != 'POST':
         return JsonResponse({"error": "POST request required"})
+
+    data = json.loads(request.body)
+    symbol = data.get("symbol", "")
+    numberShares = data.get("numberShares", "")
 
     try:
         Stocks.objects.get(stock_symbol=symbol)
@@ -137,7 +141,7 @@ def open(request, symbol, numberShares):
         return JsonResponse({"error": "Invalid stock"})
 
     with urllib.request.urlopen(f'https://sandbox.iexapis.com/stable/stock/{symbol}/batch?types=quote,news,chart&range=1m&last=10&token=Tsk_0a2e18ad710242d5acfb84a17190da50') as url:
-        purchaser = Account.objects.get(id=1)
+        purchaser = Account.objects.get(id=request.user)
         data = json.loads(url.read().decode())
         price = float(data['quote']['latestPrice'])
         totalprice = price * float(numberShares)
@@ -162,7 +166,7 @@ def open(request, symbol, numberShares):
                 user=request.user,
                 stock=symbol,
                 shares=numberShares,
-                purchased_at=price
+                position=totalprice
             )
 
             userOpen.save()
@@ -173,10 +177,16 @@ def open(request, symbol, numberShares):
                          })
 
 
-def close(request, symbol, numberShares):
+# CLOSE POSITION
+@login_required
+@csrf_exempt
+def close(request):
 
     if request.method != 'POST':
         return JsonResponse({"error": "POST request required"})
+
+    data = json.loads(request.body)
+    symbol = data.get("symbol", "")
 
     try:
         Stocks.objects.get(stock_symbol=symbol)
@@ -185,8 +195,31 @@ def close(request, symbol, numberShares):
 
     try:
         openPosition = Open.objects.get(id=request.user, stock_symbol=symbol)
+        with urllib.request.urlopen(f'https://sandbox.iexapis.com/stable/stock/{symbol}/batch?types=quote,news,chart&range=1m&last=10&token=Tsk_0a2e18ad710242d5acfb84a17190da50') as url:
+            purchaser = Account.objects.get(id=request.user)
+            data = json.loads(url.read().decode())
+            price = float(data['quote']['latestPrice'])
+            totalpriceAtClose = price * float(openPosition.shares)
+            totalPriceAtOpen = float(openPosition.position)
+            gains = totalpriceAtClose - totalPriceAtOpen
+            userMoney = float(purchaser.money)
+
+            updatedUserMoney = userMoney + gains
+            purchaser.money = updatedUserMoney
+
+        closedPosition = Closed(
+            user=request.user,
+            stock=symbol,
+            shares=openPosition.shares,
+            gains=gains
+        )
+
+        closedPosition.save()
+
     except ObjectDoesNotExist:
         return JsonResponse({"error": "You do not own any shares of this stock"})
+
+    return JsonResponse({"success": "Position closed successfully"})
 
 
 
