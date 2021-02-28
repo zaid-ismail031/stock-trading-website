@@ -1,0 +1,37 @@
+{% extends "shares/layout.html" %}
+{% load static %}
+
+{% block body %}
+    <div class="true-body">
+        <h3 id="openTitle">OPEN POSITIONS</h3>
+        {% if hasOpen %}
+        <table id="stock-table">
+            <thead>
+                <tr>
+                    <th>Stock Symbol</th>
+                    <th>Shares</th>
+                    <th>Position</th>
+                    <th>Current value</th>
+                </tr>
+            </thead>
+    
+            <tbody>
+                {% for positions in openPositions %}
+                <tr>
+                    <td><a href="{% url 'stockinfo' positions.stock_symbol %}">{{ positions.stock_symbol }}</a></td>
+                    <td>{{ positions.shares }}</td>
+                    <td>${{ positions.position }}</td>
+                    <td id="{{ positions.stock_symbol }}"></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+            <h3>You do not have any open positions</h3>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script src="{% static 'shares/openToClose.js' %}"></script>
+{% endblock %}

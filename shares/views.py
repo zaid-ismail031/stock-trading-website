@@ -123,6 +123,23 @@ def stockinfo(request, symbol):
     })
 
 
+# Open positions page
+@login_required
+def openPage(request):
+    try:
+        openPositions = Open.objects.filter(user=request.user)
+        return render(request, "shares/open.html", {
+            "hasOpen": True,
+            "openPositions": openPositions
+        })
+    except ObjectDoesNotExist:
+        return render(request, "shares/open.html", {
+            "hasOpen": False
+        })
+
+
+# __________________________________API's______________________________________________
+
 # Purchase shares API
 @login_required
 @csrf_exempt
@@ -141,20 +158,20 @@ def open(request):
         return JsonResponse({"error": "Invalid stock"})
 
     with urllib.request.urlopen(f'https://sandbox.iexapis.com/stable/stock/{symbol}/batch?types=quote,news,chart&range=1m&last=10&token=Tsk_0a2e18ad710242d5acfb84a17190da50') as url:
-        purchaser = Account.objects.get(id=request.user)
+        purchaser = Account.objects.get(id=request.user.id)
         data = json.loads(url.read().decode())
         price = float(data['quote']['latestPrice'])
         totalprice = price * float(numberShares)
         userMoney = float(purchaser.money)
 
-        if totalprice < userMoney:
+        if totalprice > userMoney:
             return JsonResponse({"error": "You do not have the funds to complete this trade."})
 
         updatedUserMoney = userMoney - totalprice
         purchaser.money = updatedUserMoney
 
         try:
-            openPosition = Open.objects.get(id=request.user, stock_symbol=symbol)
+            openPosition = Open.objects.get(user=request.user, stock_symbol=symbol)
             updatePrice = float(openPosition.position) + totalprice
             updateShares = float(openPosition.shares) + float(numberShares)
             openPosition.position = updatePrice
@@ -164,7 +181,7 @@ def open(request):
         except ObjectDoesNotExist:
             userOpen = Open(
                 user=request.user,
-                stock=symbol,
+                stock_symbol=symbol,
                 shares=numberShares,
                 position=totalprice
             )
@@ -177,7 +194,7 @@ def open(request):
                          })
 
 
-# CLOSE POSITION
+# CLOSE POSITION API
 @login_required
 @csrf_exempt
 def close(request):
@@ -194,9 +211,9 @@ def close(request):
         return JsonResponse({"error": "Invalid stock"})
 
     try:
-        openPosition = Open.objects.get(id=request.user, stock_symbol=symbol)
+        openPosition = Open.objects.get(user=request.user, stock_symbol=symbol)
         with urllib.request.urlopen(f'https://sandbox.iexapis.com/stable/stock/{symbol}/batch?types=quote,news,chart&range=1m&last=10&token=Tsk_0a2e18ad710242d5acfb84a17190da50') as url:
-            purchaser = Account.objects.get(id=request.user)
+            purchaser = Account.objects.get(id=request.user.id)
             data = json.loads(url.read().decode())
             price = float(data['quote']['latestPrice'])
             totalpriceAtClose = price * float(openPosition.shares)
@@ -207,14 +224,19 @@ def close(request):
             updatedUserMoney = userMoney + gains
             purchaser.money = updatedUserMoney
 
-        closedPosition = Closed(
-            user=request.user,
-            stock=symbol,
-            shares=openPosition.shares,
-            gains=gains
-        )
+        try:
+            checkClose = Closed.objects.get(user=request.user, stock_symbol=symbol)
+            updateGains = float(checkClose.gains) + gains
+            checkClose.gains = updateGains
+        except ObjectDoesNotExist:
+            closedPosition = Closed(
+                user=request.user,
+                stock_symbol=symbol,
+                shares=openPosition.shares,
+                gains=gains
+            )
 
-        closedPosition.save()
+            closedPosition.save()
 
     except ObjectDoesNotExist:
         return JsonResponse({"error": "You do not own any shares of this stock"})

@@ -8,6 +8,10 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById("1y").addEventListener('click', () => getStock(stockSymbol, "1y"));
     document.getElementById("2y").addEventListener('click', () => getStock(stockSymbol, "2y"));
     document.getElementById("5y").addEventListener('click', () => getStock(stockSymbol, "5y"));
+
+    getPrice(stockSymbol);
+
+    document.getElementById("purchaseStock").addEventListener('click', () => purchaseStock(stockSymbol));
 })
 
 
@@ -51,4 +55,47 @@ function getStock(symbol, range) {
             }
         });
     })
+}
+
+
+function getPrice(symbol) {
+    fetch(`https://cloud.iexapis.com/stable/stock/${symbol}/quote?token=pk_c1b5f3ef041241d595d3b69659efcb5b`)
+
+    	.then((response)=> {
+    		return response.json();
+    	})
+
+    	.then((data)=> {
+    		console.log(data.latestPrice);
+    		document.getElementById('currentPrice').innerHTML = `Current price of ${symbol} is $${data.latestPrice}`;
+    	})
+
+    	.catch((err)=> {
+    		console.log(err);
+    	})
+}
+
+function purchaseStock(stockSymbol) {
+
+    const amount = document.getElementById('numberShares').value;
+
+    const object = {
+        symbol: stockSymbol,
+        numberShares: amount
+    }
+
+    const jsonObject = JSON.stringify(object)
+
+    fetch('/api/v1/open', {
+        method: 'post',
+        body: jsonObject
+    })
+
+        .then((response) => {
+            return response.json();
+        })
+
+        .then((data) => {
+            console.log("This is the response for open API", data);
+        })
 }

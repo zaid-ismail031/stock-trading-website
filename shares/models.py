@@ -84,19 +84,27 @@ class Stocks(models.Model):
 
 class Open(models.Model):
     user = models.ForeignKey("Account", on_delete=models.CASCADE, related_name="open_positions")
-    stock = models.ManyToManyField(Stocks, blank=True, related_name="open")
+    stock_symbol = models.CharField(max_length=30, unique=True)
     shares = models.FloatField()
     position = models.DecimalField(max_digits=10000000000000, decimal_places=2)
     timestamp = models.DateTimeField(auto_now=True)
 
+    def __str__(self):
+        return f"Open {self.user} {self.stock_symbol}"
+
 
 class Closed(models.Model):
     user = models.ForeignKey("Account", on_delete=models.CASCADE, related_name="closed_positions")
-    stock = models.ManyToManyField(Stocks, blank=True, related_name="closed")
+    stock_symbol = models.CharField(max_length=30, unique=True)
     shares = models.FloatField()
     gains = models.DecimalField(max_digits=10000000000000, decimal_places=2)
     timestamp = models.DateTimeField(auto_now=True)
 
+    def __str__(self):
+        return f"Closed {self.user} {self.stock_symbol}"
+
+    class Meta:
+        verbose_name_plural = "Closed"
 
 
 

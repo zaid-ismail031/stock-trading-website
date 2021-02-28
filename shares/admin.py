@@ -4,3 +4,5 @@ from . import models
 
 admin.site.register(models.Account)
 admin.site.register(models.Stocks)
+admin.site.register(models.Open)
+admin.site.register(models.Closed)
