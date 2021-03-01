@@ -1,0 +1,51 @@
+{% extends "shares/layout.html" %}
+{% load static %}
+
+{% block body %}
+<div class="true-body">
+    <h4>{{ stock.stock_name }}</h4>
+    <h4>{{ stock.stock_symbol }}</h4>
+    <button class="btn" id="1m">
+        1 month
+    </button>
+    <button class="btn" id="3m">
+        3 months
+    </button>
+    <button class="btn" id="6m">
+        6 months
+    </button>
+    <button class="btn" id="ytd">
+        ytd
+    </button>
+    <button class="btn" id="1y">
+        1 year
+    </button>
+    <button class="btn" id="2y"> 
+        2 years
+    </button>
+    <button class="btn" id="5y">
+        5 years
+    </button>
+    <br>
+
+
+    <canvas id="myChart" width="1500" height="400"></canvas>
+
+    <form>
+        <p>Purchase shares of {{stock.stock_name}}</p>
+        <p id="currentPrice"></p>
+
+        <input type="number" name="numberShares" id="numberShares" class="numberShares">
+        <label for="numberShares" data-error="Invalid number (eg. 1200)">How many shares would you like to purchase</label>
+        <br>
+        <button type="button" class="btn" id="purchaseStock">Purchase</button>
+    </form>
+</div>
+
+
+{% endblock %}
+
+{% block script %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+    <script src="{% static 'shares/stockinfo.js' %}"></script>
+{% endblock %}

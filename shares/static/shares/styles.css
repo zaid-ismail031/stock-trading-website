@@ -1,0 +1,23 @@
+
+.true-body {
+    margin: 30px;
+}
+
+form {
+    margin: 15px;
+}
+
+#username {
+    font-size: medium;
+    padding-right: 10px;
+}
+
+#stock-table {
+    margin: 25px;
+    width: 90%;
+}
+
+#openTitle {
+    text-align: center;
+}
+

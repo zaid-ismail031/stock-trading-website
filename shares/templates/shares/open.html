@@ -1,0 +1,89 @@
+{% extends "shares/layout.html" %}
+{% load static %}
+
+{% block body %}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+		    {% for stock in openPositions %}
+            	var stock_symbol = "{{ stock.stock_symbol }}";
+                var shares = "{{ stock.shares }}";
+            	initStockPrice(stock_symbol, shares);
+                
+                document.getElementById("close_{{ stock.stock_symbol }}").addEventListener('click', () => sell("{{stock.stock_symbol}}"));
+    	    {% endfor %}
+	    })
+    
+	    function initStockPrice(symbol, shares) {
+        	fetch(`https://cloud.iexapis.com/stable/stock/${symbol}/quote?token=pk_c1b5f3ef041241d595d3b69659efcb5b`)
+        
+        	.then((response)=> {
+        		return response.json();
+        	})
+        
+        	.then((data)=> {
+        		console.log(data.latestPrice);
+                const latestPrice = Number(data.latestPrice) * Number(shares);
+                console.log("result", latestPrice);
+        		document.getElementById(symbol).innerHTML = `$${latestPrice}`;
+        	})
+        
+        	.catch((err)=> {
+        		console.log(err);
+        	})
+        }
+
+
+        function sell(symbol) {
+            const object = {symbol: symbol};
+            const jsonObject = JSON.stringify(object);
+
+            fetch('/api/v1/close', {
+                method: 'post',
+                body: jsonObject
+            })
+
+            .then((response) => {
+                return response.json();
+            })
+
+            .then((data) => {
+                console.log("This is the response for the close API", data);
+                const button = document.getElementById(`close_${symbol}`);
+                button.innerHTML = "Closed";
+                button.disabled = true;
+                document.getElementById("funds").innerHTML = data.updatedAccount;
+            })
+        }
+    </script>
+
+    <div class="true-body">
+        <h3 id="openTitle">OPEN POSITIONS</h3>
+        {% if hasOpen %}
+        <table id="stock-table">
+            <thead>
+                <tr>
+                    <th>Stock Symbol</th>
+                    <th>Shares</th>
+                    <th>Position</th>
+                    <th>Current value</th>
+                </tr>
+            </thead>
+    
+            <tbody>
+                {% for positions in openPositions %}
+                <tr>
+                    <td><a href="{% url 'stockinfo' positions.stock_symbol %}">{{ positions.stock_symbol }}</a></td>
+                    <td id="shares_{{ positions.stock_symbol }}">{{ positions.shares }}</td>
+                    <td>${{ positions.position }}</td>
+                    <td id="{{ positions.stock_symbol }}"></td>
+                    <td><button type="button" class="btn" id="close_{{ positions.stock_symbol }}">Close position</button></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+            <h3>You do not have any open positions</h3>
+        {% endif %}
+    </div>
+{% endblock %}
