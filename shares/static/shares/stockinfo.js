@@ -98,5 +98,12 @@ function purchaseStock(stockSymbol) {
         .then((data) => {
             console.log("This is the response for open API", data);
             document.getElementById("funds").innerHTML = data.updatedAccount;
+
+            const success = data['success'];
+            const error = data['error'];
+
+            if (error) document.getElementById('error').innerHTML = "Trade failed";
+            if (success) window.location.href = "/open";
+
         })
 }

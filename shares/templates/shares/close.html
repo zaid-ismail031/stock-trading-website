@@ -1,0 +1,33 @@
+{% extends "shares/layout.html" %}
+{% load static %}
+
+{% block body %}
+    <div class="true-body">
+        <h3 id="openTitle">CLOSED POSITIONS</h3>
+
+        {% if hasClose %}
+        <table id="stock-table">
+            <thead>
+                <tr>
+                    <th>Stock Symbol</th>
+                    <th>Shares</th>
+                    <th>Net Profit</th>
+                </tr>
+            </thead>
+    
+            <tbody>
+                {% for positions in closePositions %}
+                <tr>
+                    <td><a href="{% url 'stockinfo' positions.stock_symbol %}">{{ positions.stock_symbol }}</a></td>
+                    <td id="shares_{{ positions.stock_symbol }}">{{ positions.shares }}</td>
+                    <td>${{ positions.gains }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+            <h3>You do not have any open positions</h3>
+        {% endif %}
+    </div>
+
+{% endblock %}

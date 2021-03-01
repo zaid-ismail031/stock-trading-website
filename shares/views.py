@@ -81,13 +81,6 @@ def register(request):
             })
         login(request, user)
 
-        # Create user's fields in Open and Closed models
-        #userOpen = Open.objects.create(user=request.user)
-        #userOpen.save()
-        #
-        #userClose = Closed.objects.create(user=request.user)
-        #userClose.save()
-
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "shares/register.html")
@@ -142,12 +135,12 @@ def openPage(request):
 def closePage(request):
     try:
         closePositions = Closed.objects.filter(user=request.user)
-        return render(request, "shares/closed.html", {
+        return render(request, "shares/close.html", {
             "hasClose": True,
             "closePositions": closePositions
         })
     except ObjectDoesNotExist:
-        return render(request, "shares/closed.html", {
+        return render(request, "shares/close.html", {
             "hasClose": False
         })
 

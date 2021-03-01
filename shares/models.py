@@ -84,7 +84,7 @@ class Stocks(models.Model):
 
 class Open(models.Model):
     user = models.ForeignKey("Account", on_delete=models.CASCADE, related_name="open_positions")
-    stock_symbol = models.CharField(max_length=30, unique=True)
+    stock_symbol = models.CharField(max_length=30)
     shares = models.FloatField()
     position = models.DecimalField(max_digits=10000000000000, decimal_places=2)
     timestamp = models.DateTimeField(auto_now=True)
@@ -95,7 +95,7 @@ class Open(models.Model):
 
 class Closed(models.Model):
     user = models.ForeignKey("Account", on_delete=models.CASCADE, related_name="closed_positions")
-    stock_symbol = models.CharField(max_length=30, unique=True)
+    stock_symbol = models.CharField(max_length=30)
     shares = models.FloatField()
     gains = models.DecimalField(max_digits=10000000000000, decimal_places=2)
     timestamp = models.DateTimeField(auto_now=True)

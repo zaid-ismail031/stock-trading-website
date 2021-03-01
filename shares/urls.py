@@ -9,8 +9,9 @@ urlpatterns = [
     path("register", views.register, name="register"),
     path("", views.index, name="index"),
     path("open", views.openPage, name="openPage"),
-
+    path("close", views.closePage, name="closePage"),
     path("news", views.news, name="news"),
+
     path("stocks", views.stocks, name="stocks"),
     path("stocks/<str:symbol>", views.stockinfo, name="stockinfo"),
     path("api/v1/open", views.open, name="open"),
