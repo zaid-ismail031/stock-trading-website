@@ -18,3 +18,5 @@ When a position is closed, it is added to the "/close" (Closed Positions) page. 
 The "/news" (News) page shows tech related news to aid users in their trading strategies (as all the stocks on this website are tech related). Headlines, pictures and short descriptions
 are shown. Clicking on "View Full Article" will take users to the full article. The news information from the newsapi.org API.
 
+Demo can be viewed here: https://youtu.be/bilbHaLgHj4
+
